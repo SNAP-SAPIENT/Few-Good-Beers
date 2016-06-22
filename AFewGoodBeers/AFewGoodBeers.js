@@ -8,38 +8,20 @@ import {
 
 import { Router, Scene } from 'react-native-router-flux';
 
-import Launch from './src/components/pages/Launch';
-import PageTwo from './src/components/pages/PageTwo';
+import Dashboard from './src/components/pages/Dashboard';
+import MyBeer from './src/components/pages/MyBeer';
+import MyBars from './src/components/pages/MyBars';
 
 export default class App extends Component {
     render(){
       return (
         <Router>
           <Scene key="root">
-            <Scene key="launch" component={Launch} title="Launch" initial={true} />
-            <Scene key="pageTwo" component={PageTwo} title="PageTwo" />
+            <Scene key="dashboard" component={Dashboard} title="Dashboard" initial={true} />
+            <Scene key="mybeer" component={MyBeer} title="My Beers" />
+            <Scene key="mybars" component={MyBars} title="My Bars" />
           </Scene>
         </Router>
       )
     }
 }
-
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
-});
