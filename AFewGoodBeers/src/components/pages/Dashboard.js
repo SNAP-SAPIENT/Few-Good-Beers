@@ -12,10 +12,12 @@ export default class Dashboard extends Component {
           <Text style={textStyle.header}>A Few Good Beers</Text>
         </View>
         <View>
-          <Text onPress={Actions.mybeer}>My Beers</Text>
-        </View>
-        <View>
-          <Text onPress={Actions.mybars}>My Bars</Text>
+          <View>
+            <Text onPress={Actions.mybeer}>My Beers</Text>
+          </View>
+          <View>
+            <Text onPress={Actions.mybars}>My Bars</Text>
+          </View>
         </View>
       </View>
     )
@@ -28,5 +30,8 @@ var styles = StyleSheet.create({
         justifyContent: 'space-around',
         alignItems: 'center',
         backgroundColor: 'transparent',
+    },
+    twoUpContainer: {
+      flex: 2
     }
 });
