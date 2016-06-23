@@ -2,6 +2,9 @@
 int lightPin = 0;  //define a pin for Photo resistor
 int ledPin=10;     //define a pin for LED
 
+int sensorValue = 0;
+int outputValue = 0;
+
 void setup()
 {
     Serial.begin(9600);  //Begin serial communcation
@@ -11,9 +14,23 @@ void setup()
 
 void loop()
 {
-    Serial.println(analogRead(lightPin)); //Write the value of the photoresistor to the serial monitor.
-    analogWrite(ledPin, analogRead(lightPin)/.5);  //send the value to the ledPin. Depending on value of resistor 
-                                                //you have  to divide the value. for example, 
-                                                //with a 10k resistor divide the value by 2, for 100k resistor divide by 4.
-   delay(100); //short delay for faster response to light.
+   sensorValue = analogRead(lightPin);
+   outputValue = mapSensorValue(sensorValue);
+   analogWrite(ledPin, outputValue);
+
+   delay(100);
 }
+
+int mapSensorValue(int sensorValue) {
+
+  outputValue = map(sensorValue, 0, 1023, 0, 255);
+
+   Serial.print("sensor value = ");
+   Serial.print(sensorValue);
+   Serial.print("\t output = ");
+   Serial.println(outputValue);
+
+
+  return outputValue;
+}
+
