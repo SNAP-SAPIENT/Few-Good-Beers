@@ -165,7 +165,6 @@ void setup()
 void loop()
 {
   // Check for user input
-  char n, inputs[BUFSIZE+1];
   int sensorMappedValues[] = {0};
   
    // loop through the lightPins and get the data, map and write it
@@ -173,21 +172,14 @@ void loop()
           sensorValue = analogRead(lightPins[thisPin]);
           outputValue = mapSensorValue(sensorValue);
           analogWrite(ledPins[thisPin], outputValue);
-          sensorMappedValues[0] = outputValue; 
+          sendCalculatedData(outputValue);
+          delay(100);
     }
+    
+   delay(100);
+}
 
-    if (Serial.available())
-  {
-    n = Serial.readBytes(inputs, BUFSIZE);
-    inputs[n] = 0;
-    // Send characters to Bluefruit
-    Serial.print("Sending: ");
-    Serial.println(sensorMappedValues[0]);
-
-    // Send input data to host via Bluefruit
-    ble.print(outputValue);
-  }
-
+void recieveData(){
   // Echo received data
   while ( ble.available() )
   {
@@ -202,7 +194,22 @@ void loop()
 //    Serial.print("] ");
   }
 
-   delay(100);
+}
+
+void sendCalculatedData(int value){
+  char n, inputs[BUFSIZE+1];
+  
+  if (Serial.available())
+  {
+    n = Serial.readBytes(inputs, BUFSIZE);
+    inputs[n] = 0;
+    // Send characters to Bluefruit
+    Serial.print("Sending: ");
+//    Serial.println(value);
+
+    // Send input data to host via Bluefruit
+    ble.print(value);
+  }
 }
 
 int mapSensorValue(int sensorValue) {
