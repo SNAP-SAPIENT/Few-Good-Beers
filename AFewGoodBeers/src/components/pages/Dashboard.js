@@ -5,10 +5,13 @@ import { Actions } from 'react-native-router-flux';
 import textStyle from '../../styles/textStyle';
 import Summary from '../Summary';
 
+import BeerData from '../../../BeerData';
+
 export default class Dashboard extends Component {
   render() {
     return (
       <View style={styles.container}>
+        <BeerData />
         <View>
           <Text style={textStyle.header}>A Few Good Beers</Text>
         </View>
