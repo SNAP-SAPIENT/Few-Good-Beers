@@ -8,6 +8,7 @@
   "dependencies": {
     "react": "15.1.0",
     "react-native": "0.28.0",
+    "react-native-ble": "^1.0.3",
     "react-native-button": "^1.6.0",
     "react-native-redux-router": "^1.0.7",
     "react-native-router-flux": "^3.30.2",
