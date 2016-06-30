@@ -47,6 +47,15 @@
     #define FACTORYRESET_ENABLE         1
     #define MINIMUM_FIRMWARE_VERSION    "0.6.6"
     #define MODE_LED_BEHAVIOUR          "MODE"
+
+    #define MANUFACTURER_APPLE         "0x004C"
+    #define MANUFACTURER_NORDIC        "0x0059"
+
+    #define BEACON_MANUFACTURER_ID     MANUFACTURER_APPLE
+    #define BEACON_UUID                "01-12-23-34-45-56-67-78-89-9A-AB-BC-CD-DE-EF-F0"
+    #define BEACON_MAJOR               "0x0000"
+    #define BEACON_MINOR               "0x0000"
+    #define BEACON_RSSI_1M             "-54"
 /*=========================================================================*/
 
 // Create the bluefruit object, either software serial...uncomment these lines
@@ -96,65 +105,58 @@ int outputValue = 0;
 void setup()
 {
 //    Serial.begin(9600);  //Begin serial communcation
-
-  // Setup for BLE 
-  while (!Serial);  // required for Flora & Micro
-  delay(500);
-
-  Serial.begin(115200);
-  Serial.println(F("Adafruit Bluefruit Command <-> Data Mode Example"));
-  Serial.println(F("------------------------------------------------"));
-
-  /* Initialise the module */
-  Serial.print(F("Initialising the Bluefruit LE module: "));
-
-  if ( !ble.begin(VERBOSE_MODE) )
-  {
-    error(F("Couldn't find Bluefruit, make sure it's in CoMmanD mode & check wiring?"));
-  }
-  Serial.println( F("OK!") );
-
-  if ( FACTORYRESET_ENABLE )
-  {
-    /* Perform a factory reset to make sure everything is in a known state */
-    Serial.println(F("Performing a factory reset: "));
-    if ( ! ble.factoryReset() ){
-      error(F("Couldn't factory reset"));
-    }
-  }
-
-  /* Disable command echo from Bluefruit */
-  ble.echo(false);
-
-  Serial.println("Requesting Bluefruit info:");
-  /* Print Bluefruit information */
-  ble.info();
-
-  Serial.println(F("Please use Adafruit Bluefruit LE app to connect in UART mode"));
-  Serial.println(F("Then Enter characters to send to Bluefruit"));
-  Serial.println();
-
-  ble.verbose(false);  // debug info is a little annoying after this point!
-
-  /* Wait for connection */
-  while (! ble.isConnected()) {
+      while (!Serial);  // required for Flora & Micro
       delay(500);
-  }
-
-  Serial.println(F("******************************"));
-
-  // LED Activity command is only supported from 0.6.6
-  if ( ble.isVersionAtLeast(MINIMUM_FIRMWARE_VERSION) )
-  {
-    // Change Mode LED Activity
-    Serial.println(F("Change LED activity to " MODE_LED_BEHAVIOUR));
-    ble.sendCommandCheckOK("AT+HWModeLED=" MODE_LED_BEHAVIOUR);
-  }
-
-  // Set module to DATA mode
-  Serial.println( F("Switching to DATA mode!") );
-  ble.setMode(BLUEFRUIT_MODE_DATA);
-
+    
+      Serial.begin(115200);
+      Serial.println(F("Adafruit Bluefruit Beacon Example"));
+      Serial.println(F("---------------------------------"));
+    
+      /* Initialise the module */
+      Serial.print(F("Initialising the Bluefruit LE module: "));
+    
+      if ( !ble.begin(VERBOSE_MODE) )
+      {
+        error(F("Couldn't find Bluefruit, make sure it's in CoMmanD mode & check wiring?"));
+      }
+      Serial.println( F("OK!") );
+    
+      if ( FACTORYRESET_ENABLE )
+      {
+        /* Perform a factory reset to make sure everything is in a known state */
+        Serial.println(F("Performing a factory reset: "));
+        if ( ! ble.factoryReset() ){
+          error(F("Couldn't factory reset"));
+        }
+      }
+    
+      /* Disable command echo from Bluefruit */
+      ble.echo(false);
+    
+      Serial.println("Requesting Bluefruit info:");
+      /* Print Bluefruit information */ 
+      ble.info();
+      
+    
+      Serial.println(F("Setting beacon configuration details: "));
+    
+      // AT+BLEBEACON=0x004C,01-12-23-34-45-56-67-78-89-9A-AB-BC-CD-DE-EF-F0,0x0000,0x0000,-54
+      ble.print("AT+BLEBEACON="        );
+      ble.print(BEACON_MANUFACTURER_ID ); ble.print(',');
+      ble.print(BEACON_UUID            ); ble.print(',');
+      ble.print(BEACON_MAJOR           ); ble.print(',');
+      ble.print(BEACON_MINOR           ); ble.print(',');
+      ble.print(BEACON_RSSI_1M         );
+      ble.println(); // print line causes the command to execute
+    
+      // check response status
+      if (! ble.waitForOK() ) {
+        error(F("Didn't get the OK"));
+      }
+    
+      Serial.println();
+      Serial.println(F("Open your beacon app to test"));
+  
   Serial.println(F("******************************"));
 
   // loop through all the pins and intialize them 
@@ -210,7 +212,7 @@ void sendCalculatedData(int value){
 //    ble.print(value);
 //  }
 
-    ble.print(value);
+//    ble.print(value);
 }
 
 int mapSensorValue(int sensorValue) {
