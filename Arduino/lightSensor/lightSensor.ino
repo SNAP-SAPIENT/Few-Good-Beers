@@ -48,14 +48,6 @@
     #define MINIMUM_FIRMWARE_VERSION    "0.6.6"
     #define MODE_LED_BEHAVIOUR          "MODE"
 
-    #define MANUFACTURER_APPLE         "0x004C"
-    #define MANUFACTURER_NORDIC        "0x0059"
-
-    #define BEACON_MANUFACTURER_ID     MANUFACTURER_APPLE
-    #define BEACON_UUID                "01-12-23-34-45-56-67-78-89-9A-AB-BC-CD-DE-EF-F0"
-    #define BEACON_MAJOR               "0x0000"
-    #define BEACON_MINOR               "0x0000"
-    #define BEACON_RSSI_1M             "-54"
 /*=========================================================================*/
 
 // Create the bluefruit object, either software serial...uncomment these lines
@@ -86,9 +78,8 @@ void error(const __FlashStringHelper*err) {
 
 /* The service information */
 
-int32_t hrmServiceId;
-int32_t hrmMeasureCharId;
-int32_t hrmLocationCharId;
+int32_t beerServiceId;
+int32_t beerCharId;
 
 /*****************************************************************************************************/
 
@@ -155,24 +146,24 @@ void setup(void)
     error(F("Could not set device name?"));
   }
 
-   /* Add the Heart Rate Service definition */
+   /* Add the Beer Service definition */
   /* Service ID should be 1 */
-  Serial.println(F("Adding the Heart Rate Service definition (UUID = 0x103D): "));
-  success = ble.sendCommandWithIntReply( F("AT+GATTADDSERVICE=UUID=0x103D"), &hrmServiceId);
+  Serial.println(F("Adding the Beer Service definition (UUID = 0x103D): "));
+  success = ble.sendCommandWithIntReply( F("AT+GATTADDSERVICE=UUID=0x103D"), &beerServiceId);
   if (! success) {
-    error(F("Could not add HRM service"));
+    error(F("Could not add Beer service"));
   }
 
-  /* Add the Heart Rate Measurement characteristic */
+  /* Add the Beer Flight Measurement characteristic */
   /* Chars ID for Measurement should be 1 */
-  Serial.println(F("Adding the Heart Rate Measurement characteristic (UUID = 0x2A37): "));
-  success = ble.sendCommandWithIntReply( F("AT+GATTADDCHAR=UUID=0x2A37, PROPERTIES=0x02, MIN_LEN=1, VALUE=100"), &hrmMeasureCharId);
+  Serial.println(F("Adding the Beer Flight Measurement characteristic (UUID = 0x2A67): "));
+  success = ble.sendCommandWithIntReply( F("AT+GATTADDCHAR=UUID=0x2A67, PROPERTIES=0x01, MIN_LEN=1, VALUE=100"), &beerCharId);
     if (! success) {
-    error(F("Could not add HRM characteristic"));
+    error(F("Could not add characteristic"));
   }
 
-//  /* Add the Heart Rate Service to the advertising data (needed for Nordic apps to detect the service) */
-  Serial.print(F("Adding Heart Rate Service UUID to the advertising payload: "));
+//  /* Add the Beer Service to the advertising data (needed for Nordic apps to detect the service) */
+  Serial.print(F("Adding Beer Service UUID to the advertising payload: "));
   ble.sendCommandCheckOK( F("AT+GAPSETADVDATA=03-02-3D-10") );
 
   /* Reset the device for the new service setting changes to take effect */
@@ -201,9 +192,8 @@ void loop()
 //          sendCalculatedData(outputValue);
 //    }
 
-//ble.print( F("AT+GATTCHAR=") );
-//  ble.print( hrmMeasureCharId );
-//  ble.println("moo");
+ble.print( F("AT+GATTCHAR=1") );
+ble.println("moo");
 //    
 //   Serial.print(F("Updating HRM value to "));
 //  Serial.print(outputValue);
@@ -217,49 +207,14 @@ void loop()
 //  ble.println(outputValue, HEX);
 //
 //  /* Check if command executed OK */
-//  if ( !ble.waitForOK() )
-//  {
-//    Serial.println(F("Failed to get response!"));
-//  }
+  if ( !ble.waitForOK() )
+  {
+    Serial.println(F("Failed to get response!"));
+  }
 //
 //  /* Delay before next measurement update */
   delay(1000);
   
-}
-
-void recieveData(){
-  // Echo received data
-  while ( ble.available() )
-  {
-//    int c = ble.read();
-//
-//    Serial.print((char)c);
-//
-//    // Hex output too, helps w/debugging!
-//    Serial.print(" [0x");
-//    if (c <= 0xF) Serial.print(F("0"));
-//    Serial.print(c, HEX);
-//    Serial.print("] ");
-  }
-
-}
-
-void sendCalculatedData(int value){
-  char n, inputs[BUFSIZE+1];
-  
-//  if (Serial.available())
-//  {
-//    n = Serial.readBytes(inputs, BUFSIZE);
-//    inputs[n] = 0;
-//    // Send characters to Bluefruit
-    Serial.print("Sending: ");
-    Serial.println(value);
-//
-//    // Send input data to host via Bluefruit
-//    ble.print(value);
-//  }
-
-    ble.print(value);
 }
 
 int mapSensorValue(int sensorValue) {
