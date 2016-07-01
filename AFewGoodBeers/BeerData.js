@@ -37,7 +37,7 @@ export default class BeerData extends Component {
   _onStateChange(state) {
       if (state === 'poweredOn') {
         console.log('start the scan');
-        noble.startScanning(['6E400001-B5A3-F393-E0A9-E50E24DCCA9E']);
+        noble.startScanning(['103D']);
       } else {
         console.log('not scanning');
         noble.stopScanning();
@@ -47,6 +47,12 @@ export default class BeerData extends Component {
   _onPeripheralFound = (peripheral) => {
     console.log('found it?');
     this._printPeripheral(peripheral);
+    this._connectToBeers(peripheral);
+  }
+
+  _connectToBeers(peripheral) {
+    console.log('connect, yo');
+    peripheral.connect(discover);
   }
 
   _printPeripheral(peripheral) {
@@ -60,12 +66,14 @@ export default class BeerData extends Component {
       console.log('\t\t' + JSON.stringify(peripheral.advertisement.serviceUuids));
 
       var serviceData = peripheral.advertisement.serviceData;
-      if (serviceData && serviceData.length) {
-        console.log('\there is my service data:');
-        for (var i in serviceData) {
-          console.log('\t\t' + JSON.stringify(serviceData[i].uuid) + ': ' + JSON.stringify(serviceData[i].data.toString('hex')));
-        }
-      }
+      console.log('peripheral adv. ', peripheral.advertisement);
+      console.log('service Data: ', serviceData);
+      // if (serviceData && serviceData.length) {
+      //   console.log('\there is my service data:');
+      //   for (var i in serviceData) {
+      //     console.log('\t\t' + JSON.stringify(serviceData[i].uuid) + ': ' + JSON.stringify(serviceData[i].data.toString('hex')));
+      //   }
+      // }
       if (peripheral.advertisement.manufacturerData) {
         console.log('\there is my manufacturer data:');
         console.log('\t\t' + JSON.stringify(peripheral.advertisement.manufacturerData.toString('hex')));

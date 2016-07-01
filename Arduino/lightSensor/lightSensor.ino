@@ -166,14 +166,14 @@ void setup(void)
   /* Add the Heart Rate Measurement characteristic */
   /* Chars ID for Measurement should be 1 */
   Serial.println(F("Adding the Heart Rate Measurement characteristic (UUID = 0x2A37): "));
-  success = ble.sendCommandWithIntReply( F("AT+GATTADDCHAR=UUID=0x2A37, PROPERTIES=0x10, MIN_LEN=2, MAX_LEN=3, VALUE=00-40"), &hrmMeasureCharId);
+  success = ble.sendCommandWithIntReply( F("AT+GATTADDCHAR=UUID=0x2A37, PROPERTIES=0x02, MIN_LEN=1, VALUE=100"), &hrmMeasureCharId);
     if (! success) {
     error(F("Could not add HRM characteristic"));
   }
 
 //  /* Add the Heart Rate Service to the advertising data (needed for Nordic apps to detect the service) */
-//  Serial.print(F("Adding Heart Rate Service UUID to the advertising payload: "));
-//  ble.sendCommandCheckOK( F("AT+GAPSETADVDATA=05-02-0D-18") );
+  Serial.print(F("Adding Heart Rate Service UUID to the advertising payload: "));
+  ble.sendCommandCheckOK( F("AT+GAPSETADVDATA=03-02-3D-10") );
 
   /* Reset the device for the new service setting changes to take effect */
   Serial.print(F("Performing a SW reset (service changes require a reset): "));
@@ -200,6 +200,10 @@ void loop()
 //          analogWrite(ledPins[thisPin], outputValue);
 //          sendCalculatedData(outputValue);
 //    }
+
+//ble.print( F("AT+GATTCHAR=") );
+//  ble.print( hrmMeasureCharId );
+//  ble.println("moo");
 //    
 //   Serial.print(F("Updating HRM value to "));
 //  Serial.print(outputValue);
