@@ -7,7 +7,7 @@ import {
   View
 } from 'react-native';
 
-var noble = require('react-native-ble');
+var noble = require('noble');
 
 export default class BeerData extends Component {
   constructor(){
@@ -36,13 +36,16 @@ export default class BeerData extends Component {
 
   _onStateChange(state) {
       if (state === 'poweredOn') {
-        noble.startScanning(["180d"]);
+        console.log('start the scan');
+        noble.startScanning();
       } else {
+        console.log('not scanning');
         noble.stopScanning();
       }
   }
 
-  _onPeripheralFound(peripheral) {
+  _onPeripheralFound = (peripheral) => {
+    console.log('found it?');
     this._printPeripheral(peripheral);
   }
 
@@ -71,7 +74,9 @@ export default class BeerData extends Component {
         console.log('\tmy TX power level is:');
         console.log('\t\t' + peripheral.advertisement.txPowerLevel);
       }
-
-      console.log();
     }
 }
+
+//<Text> Peripheral address: peripheral.address </Text>
+  //        <Text> Peripheral address type: peripheral.addressType </Text>
+    //      <Text> Peripheral connectable: {peripheral.connectable}</Text>

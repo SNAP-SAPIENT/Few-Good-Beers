@@ -5,6 +5,9 @@
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start"
   },
+  "browser": {
+      "noble": "react-native-ble"
+  },
   "dependencies": {
     "react": "15.1.0",
     "react-native": "0.28.0",
