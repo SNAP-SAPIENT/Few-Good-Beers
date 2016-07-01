@@ -86,8 +86,8 @@ void error(const __FlashStringHelper*err) {
 
 /* The service information */
 
-int32_t beerServiceId;
-int32_t randomId;
+int32_t hrmServiceId;
+int32_t hrmMeasureCharId;
 int32_t hrmLocationCharId;
 
 /*****************************************************************************************************/
@@ -155,25 +155,25 @@ void setup(void)
     error(F("Could not set device name?"));
   }
 
-  /* Add the Heart Rate Service definition */
+   /* Add the Heart Rate Service definition */
   /* Service ID should be 1 */
-  Serial.println(F("Adding the Beer Service (UUID = 0xFA79): "));
-  success = ble.sendCommandWithIntReply( F("AT+GATTADDSERVICE=UUID=0x1337"), &randomId);
+  Serial.println(F("Adding the Heart Rate Service definition (UUID = 0x103D): "));
+  success = ble.sendCommandWithIntReply( F("AT+GATTADDSERVICE=UUID=0x103D"), &hrmServiceId);
   if (! success) {
-    error(F("Could not add Beer service"));
+    error(F("Could not add HRM service"));
   }
 
   /* Add the Heart Rate Measurement characteristic */
   /* Chars ID for Measurement should be 1 */
   Serial.println(F("Adding the Heart Rate Measurement characteristic (UUID = 0x2A37): "));
-  success = ble.sendCommandWithIntReply( F("AT+GATTADDCHAR=UUID=0xFA79, PROPERTIES=0x10, MIN_LEN=2, MAX_LEN=4, VALUE=00-1000"), &beerServiceId);
+  success = ble.sendCommandWithIntReply( F("AT+GATTADDCHAR=UUID=0x2A37, PROPERTIES=0x10, MIN_LEN=2, MAX_LEN=3, VALUE=00-40"), &hrmMeasureCharId);
     if (! success) {
     error(F("Could not add HRM characteristic"));
   }
 
-  /* Add the Heart Rate Service to the advertising data (needed for Nordic apps to detect the service) */
-  Serial.print(F("Adding Heart Rate Service UUID to the advertising payload: "));
-  ble.sendCommandCheckOK( F("AT+GAPSETADVDATA=02-01-06-05-02-0d-18-0a-18") );
+//  /* Add the Heart Rate Service to the advertising data (needed for Nordic apps to detect the service) */
+//  Serial.print(F("Adding Heart Rate Service UUID to the advertising payload: "));
+//  ble.sendCommandCheckOK( F("AT+GAPSETADVDATA=05-02-0D-18") );
 
   /* Reset the device for the new service setting changes to take effect */
   Serial.print(F("Performing a SW reset (service changes require a reset): "));
@@ -194,31 +194,31 @@ void setup(void)
 void loop()
 {
    // loop through the lightPins and get the data, map and write it
-    for(int thisPin = 0; thisPin < pinCount; thisPin++){
-          sensorValue = analogRead(lightPins[thisPin]);
-          outputValue = mapSensorValue(sensorValue);
-          analogWrite(ledPins[thisPin], outputValue);
-          sendCalculatedData(outputValue);
-    }
-    
-   Serial.print(F("Updating HRM value to "));
-  Serial.print(outputValue);
-  Serial.println(F(" Units"));
+//    for(int thisPin = 0; thisPin < pinCount; thisPin++){
+//          sensorValue = analogRead(lightPins[thisPin]);
+//          outputValue = mapSensorValue(sensorValue);
+//          analogWrite(ledPins[thisPin], outputValue);
+//          sendCalculatedData(outputValue);
+//    }
+//    
+//   Serial.print(F("Updating HRM value to "));
+//  Serial.print(outputValue);
+//  Serial.println(F(" Units"));
 
   /* Command is sent when \n (\r) or println is called */
   /* AT+GATTCHAR=CharacteristicID,value */
-  ble.print( F("AT+GATTCHAR=") );
-  ble.print( beerServiceId );
-  ble.print( F(",00-") );
-  ble.println(outputValue, HEX);
-
-  /* Check if command executed OK */
-  if ( !ble.waitForOK() )
-  {
-    Serial.println(F("Failed to get response!"));
-  }
-
-  /* Delay before next measurement update */
+//  ble.print( F("AT+GATTCHAR=") );
+//  ble.print( beerServiceId );
+//  ble.print( F(",00-") );
+//  ble.println(outputValue, HEX);
+//
+//  /* Check if command executed OK */
+//  if ( !ble.waitForOK() )
+//  {
+//    Serial.println(F("Failed to get response!"));
+//  }
+//
+//  /* Delay before next measurement update */
   delay(1000);
   
 }
