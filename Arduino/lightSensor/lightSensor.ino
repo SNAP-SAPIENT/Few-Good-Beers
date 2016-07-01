@@ -48,14 +48,6 @@
     #define MINIMUM_FIRMWARE_VERSION    "0.6.6"
     #define MODE_LED_BEHAVIOUR          "MODE"
 
-    #define MANUFACTURER_APPLE         "0x004C"
-    #define MANUFACTURER_NORDIC        "0x0059"
-
-    #define BEACON_MANUFACTURER_ID     MANUFACTURER_APPLE
-    #define BEACON_UUID                "01-12-23-34-45-56-67-78-89-9A-AB-BC-CD-DE-EF-F0"
-    #define BEACON_MAJOR               "0x0000"
-    #define BEACON_MINOR               "0x0000"
-    #define BEACON_RSSI_1M             "-54"
 /*=========================================================================*/
 
 // Create the bluefruit object, either software serial...uncomment these lines
@@ -84,6 +76,11 @@ void error(const __FlashStringHelper*err) {
   while (1);
 }
 
+/* The service information */
+
+int32_t beerServiceId;
+int32_t beerCharId;
+
 /*****************************************************************************************************/
 
 // Define things for Beers Data 
@@ -102,60 +99,79 @@ int pinCount = 1;
 int sensorValue = 0;
 int outputValue = 0;
 
-void setup()
+void setup(void)
 {
 //    Serial.begin(9600);  //Begin serial communcation
       while (!Serial);  // required for Flora & Micro
       delay(500);
+
+      boolean success;
     
       Serial.begin(115200);
-      Serial.println(F("Adafruit Bluefruit Beacon Example"));
+      Serial.println(F("A Few Good Beers -- Setup process"));
       Serial.println(F("---------------------------------"));
+
+      randomSeed(micros());
+
+  /* Initialise the module */
+  Serial.print(F("Initialising the Bluefruit LE module: "));
+
+  if ( !ble.begin(VERBOSE_MODE) )
+  {
+    error(F("Couldn't find Bluefruit, make sure it's in CoMmanD mode & check wiring?"));
+  }
+  Serial.println( F("OK!") );
+
+  /* Perform a factory reset to make sure everything is in a known state */
+  Serial.println(F("Performing a factory reset: "));
+  if (! ble.factoryReset() ){
+       error(F("Couldn't factory reset"));
+  }
+
+  /* Disable command echo from Bluefruit */
+  ble.echo(false);
+
+  Serial.println("Requesting Bluefruit info:");
+  /* Print Bluefruit information */
+  ble.info();
+
+  // this line is particularly required for Flora, but is a good idea
+  // anyways for the super long lines ahead!
+  // ble.setInterCharWriteDelay(5); // 5 ms
+
+  /* Change the device name to make it easier to find */
+  Serial.println(F("Setting device name to 'A Few Good Beers': "));
+
+  if (! ble.sendCommandCheckOK(F("AT+GAPDEVNAME=A Few Good Beers")) ) {
+    error(F("Could not set device name?"));
+  }
+
+   /* Add the Beer Service definition */
+  /* Service ID should be 1 */
+  Serial.println(F("Adding the Beer Service definition (UUID = 0x103D): "));
+  success = ble.sendCommandWithIntReply( F("AT+GATTADDSERVICE=UUID=0x103D"), &beerServiceId);
+  if (! success) {
+    error(F("Could not add Beer service"));
+  }
+
+  /* Add the Beer Flight Measurement characteristic */
+  /* Chars ID for Measurement should be 1 */
+  Serial.println(F("Adding the Beer Flight Measurement characteristic (UUID = 0x2A67): "));
+  success = ble.sendCommandWithIntReply( F("AT+GATTADDCHAR=UUID=0x2A67, PROPERTIES=0x01, MIN_LEN=1, VALUE=100"), &beerCharId);
+    if (! success) {
+    error(F("Could not add characteristic"));
+  }
+
+//  /* Add the Beer Service to the advertising data (needed for Nordic apps to detect the service) */
+  Serial.print(F("Adding Beer Service UUID to the advertising payload: "));
+  ble.sendCommandCheckOK( F("AT+GAPSETADVDATA=03-02-3D-10") );
+
+  /* Reset the device for the new service setting changes to take effect */
+  Serial.print(F("Performing a SW reset (service changes require a reset): "));
+  ble.reset();
+
+  Serial.println();
     
-      /* Initialise the module */
-      Serial.print(F("Initialising the Bluefruit LE module: "));
-    
-      if ( !ble.begin(VERBOSE_MODE) )
-      {
-        error(F("Couldn't find Bluefruit, make sure it's in CoMmanD mode & check wiring?"));
-      }
-      Serial.println( F("OK!") );
-    
-      if ( FACTORYRESET_ENABLE )
-      {
-        /* Perform a factory reset to make sure everything is in a known state */
-        Serial.println(F("Performing a factory reset: "));
-        if ( ! ble.factoryReset() ){
-          error(F("Couldn't factory reset"));
-        }
-      }
-    
-      /* Disable command echo from Bluefruit */
-      ble.echo(false);
-    
-      Serial.println("Requesting Bluefruit info:");
-      /* Print Bluefruit information */ 
-      ble.info();
-      
-    
-      Serial.println(F("Setting beacon configuration details: "));
-    
-      // AT+BLEBEACON=0x004C,01-12-23-34-45-56-67-78-89-9A-AB-BC-CD-DE-EF-F0,0x0000,0x0000,-54
-      ble.print("AT+BLEBEACON="        );
-      ble.print(BEACON_MANUFACTURER_ID ); ble.print(',');
-      ble.print(BEACON_UUID            ); ble.print(',');
-      ble.print(BEACON_MAJOR           ); ble.print(',');
-      ble.print(BEACON_MINOR           ); ble.print(',');
-      ble.print(BEACON_RSSI_1M         );
-      ble.println(); // print line causes the command to execute
-    
-      // check response status
-      if (! ble.waitForOK() ) {
-        error(F("Didn't get the OK"));
-      }
-    
-      Serial.println();
-      Serial.println(F("Open your beacon app to test"));
   
   Serial.println(F("******************************"));
 
@@ -168,51 +184,37 @@ void setup()
 
 void loop()
 {
-  
    // loop through the lightPins and get the data, map and write it
-    for(int thisPin = 0; thisPin < pinCount; thisPin++){
-          sensorValue = analogRead(lightPins[thisPin]);
-          outputValue = mapSensorValue(sensorValue);
-          analogWrite(ledPins[thisPin], outputValue);
-          sendCalculatedData(outputValue);
-    }
-    
-   delay(500);
-}
+//    for(int thisPin = 0; thisPin < pinCount; thisPin++){
+//          sensorValue = analogRead(lightPins[thisPin]);
+//          outputValue = mapSensorValue(sensorValue);
+//          analogWrite(ledPins[thisPin], outputValue);
+//          sendCalculatedData(outputValue);
+//    }
 
-void recieveData(){
-  // Echo received data
-  while ( ble.available() )
+ble.print( F("AT+GATTCHAR=1") );
+ble.println("moo");
+//    
+//   Serial.print(F("Updating HRM value to "));
+//  Serial.print(outputValue);
+//  Serial.println(F(" Units"));
+
+  /* Command is sent when \n (\r) or println is called */
+  /* AT+GATTCHAR=CharacteristicID,value */
+//  ble.print( F("AT+GATTCHAR=") );
+//  ble.print( beerServiceId );
+//  ble.print( F(",00-") );
+//  ble.println(outputValue, HEX);
+//
+//  /* Check if command executed OK */
+  if ( !ble.waitForOK() )
   {
-//    int c = ble.read();
-//
-//    Serial.print((char)c);
-//
-//    // Hex output too, helps w/debugging!
-//    Serial.print(" [0x");
-//    if (c <= 0xF) Serial.print(F("0"));
-//    Serial.print(c, HEX);
-//    Serial.print("] ");
+    Serial.println(F("Failed to get response!"));
   }
-
-}
-
-void sendCalculatedData(int value){
-  char n, inputs[BUFSIZE+1];
-  
-//  if (Serial.available())
-//  {
-//    n = Serial.readBytes(inputs, BUFSIZE);
-//    inputs[n] = 0;
-//    // Send characters to Bluefruit
-    Serial.print("Sending: ");
-    Serial.println(value);
 //
-//    // Send input data to host via Bluefruit
-//    ble.print(value);
-//  }
-
-//    ble.print(value);
+//  /* Delay before next measurement update */
+  delay(1000);
+  
 }
 
 int mapSensorValue(int sensorValue) {
