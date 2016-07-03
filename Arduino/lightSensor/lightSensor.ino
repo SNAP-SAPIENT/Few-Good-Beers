@@ -84,17 +84,19 @@ int32_t beerCharId;
 /*****************************************************************************************************/
 
 // Define things for Beers Data 
+
+// Flight 3 - A5,
+// Ambient 2 - A4,
+// Flight 2 - A3
+// Ambient 1 - A2
+// Flight 1 - A1 
+
 int lightPins[] = {
-  0
+  1, 2, 3, 4, 5
 };
 
-int ledPins[] = {
-  10
-};
 
-// nominal sensor = A5; 
-
-int pinCount = 1;
+int pinCount = 5;
 
 int sensorValue = 0;
 int outputValue = 0;
@@ -156,12 +158,35 @@ void setup(void)
 
   /* Add the Beer Flight Measurement characteristic */
   /* Chars ID for Measurement should be 1 */
-  Serial.println(F("Adding the Beer Flight Measurement characteristic (UUID = 0x2A67): "));
-  success = ble.sendCommandWithIntReply( F("AT+GATTADDCHAR=UUID=0x2A67, PROPERTIES=0x01, MIN_LEN=1, VALUE=100"), &beerCharId);
+  Serial.println(F("Adding the Beer Flight Measurement characteristic - Flight 1 (UUID = 0x0001): "));
+  success = ble.sendCommandWithIntReply( F("AT+GATTADDCHAR=UUID=0x0001,PROPERTIES=0x02,MIN_LEN=1,VALUE=20"), &beerCharId);
     if (! success) {
     error(F("Could not add characteristic"));
   }
 
+  Serial.println(F("Adding the Beer Flight Measurement characteristic - Ambient 1 (UUID = 0x0002): "));
+  success = ble.sendCommandWithIntReply( F("AT+GATTADDCHAR=UUID=0x0002,PROPERTIES=0x02,MIN_LEN=1,VALUE=20"), &beerCharId);
+    if (! success) {
+    error(F("Could not add characteristic"));
+  }
+
+  Serial.println(F("Adding the Beer Flight Measurement characteristic - Flight 2 (UUID = 0x0003): "));
+  success = ble.sendCommandWithIntReply( F("AT+GATTADDCHAR=UUID=0x0003,PROPERTIES=0x02,MIN_LEN=1,VALUE=20"), &beerCharId);
+    if (! success) {
+    error(F("Could not add characteristic"));
+  }
+
+  Serial.println(F("Adding the Beer Flight Measurement characteristic - Ambient 2  (UUID = 0x0004): "));
+  success = ble.sendCommandWithIntReply( F("AT+GATTADDCHAR=UUID=0x0004,PROPERTIES=0x02,MIN_LEN=1,VALUE=20"), &beerCharId);
+    if (! success) {
+    error(F("Could not add characteristic"));
+  }
+
+  Serial.println(F("Adding the Beer Flight Measurement characteristic - Flight 3 (UUID = 0x0005): "));
+  success = ble.sendCommandWithIntReply( F("AT+GATTADDCHAR=UUID=0x0005,PROPERTIES=0x02,MIN_LEN=1,VALUE=20"), &beerCharId);
+    if (! success) {
+    error(F("Could not add characteristic"));
+  }
 //  /* Add the Beer Service to the advertising data (needed for Nordic apps to detect the service) */
   Serial.print(F("Adding Beer Service UUID to the advertising payload: "));
   ble.sendCommandCheckOK( F("AT+GAPSETADVDATA=03-02-3D-10") );
@@ -171,46 +196,50 @@ void setup(void)
   ble.reset();
 
   Serial.println();
-    
+  
   
   Serial.println(F("******************************"));
 
   // loop through all the pins and intialize them 
-  for(int thisPin = 0; thisPin < pinCount; thisPin++){
-    pinMode( ledPins[thisPin], OUTPUT );
-  }
+//  for(int thisPin = 0; thisPin < pinCount; thisPin++){
+//    pinMode( ledPins[thisPin], OUTPUT );
+//  }
 }
 
 
 void loop()
 {
    // loop through the lightPins and get the data, map and write it
-//    for(int thisPin = 0; thisPin < pinCount; thisPin++){
-//          sensorValue = analogRead(lightPins[thisPin]);
-//          outputValue = mapSensorValue(sensorValue);
-//          analogWrite(ledPins[thisPin], outputValue);
-//          sendCalculatedData(outputValue);
-//    }
+    for(int thisPin = 0; thisPin < pinCount; thisPin++){
+          int32_t uuidIndex; 
 
-ble.print( F("AT+GATTCHAR=1") );
-ble.println("moo");
+          uuidIndex = thisPin + 1; 
+
+          Serial.print("which uuid index: ");
+          Serial.println(uuidIndex);
+          
+          sensorValue = analogRead(lightPins[thisPin]);
+          outputValue = mapSensorValue(sensorValue);
+
+          /* Command is sent when \n (\r) or println is called */
+          /* AT+GATTCHAR=CharacteristicID,value */
+          ble.print( F("AT+GATTCHAR=") );
+          ble.print( uuidIndex );
+          ble.print( F(",") );
+          ble.println(outputValue);
+        
+        //  /* Check if command executed OK */
+          if ( !ble.waitForOK() )
+          {
+            Serial.println(F("Failed to get response!"));
+          }
+    }
+
+
 //    
 //   Serial.print(F("Updating HRM value to "));
 //  Serial.print(outputValue);
 //  Serial.println(F(" Units"));
-
-  /* Command is sent when \n (\r) or println is called */
-  /* AT+GATTCHAR=CharacteristicID,value */
-//  ble.print( F("AT+GATTCHAR=") );
-//  ble.print( beerServiceId );
-//  ble.print( F(",00-") );
-//  ble.println(outputValue, HEX);
-//
-//  /* Check if command executed OK */
-  if ( !ble.waitForOK() )
-  {
-    Serial.println(F("Failed to get response!"));
-  }
 //
 //  /* Delay before next measurement update */
   delay(1000);
@@ -225,7 +254,7 @@ int mapSensorValue(int sensorValue) {
   outputValue = map(sensorValue, 1, 700, 1, 20);
   reMappedValue = map(outputValue, 1, 20, 1, 255);
   
-  
+  Serial.println(reMappedValue); 
 //   Serial.print("sensor value = ");
 //   Serial.print(sensorValue);
 //   Serial.print("\t mapped value = ");
