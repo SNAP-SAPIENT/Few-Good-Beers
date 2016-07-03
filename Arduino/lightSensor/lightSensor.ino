@@ -159,31 +159,31 @@ void setup(void)
   /* Add the Beer Flight Measurement characteristic */
   /* Chars ID for Measurement should be 1 */
   Serial.println(F("Adding the Beer Flight Measurement characteristic - Flight 1 (UUID = 0x0001): "));
-  success = ble.sendCommandWithIntReply( F("AT+GATTADDCHAR=UUID=0x0001,PROPERTIES=0x02,MIN_LEN=1,VALUE=20"), &beerCharId);
+  success = ble.sendCommandWithIntReply( F("AT+GATTADDCHAR=UUID=0x0001,PROPERTIES=0x10,MIN_LEN=1,VALUE=20"), &beerCharId);
     if (! success) {
     error(F("Could not add characteristic"));
   }
 
   Serial.println(F("Adding the Beer Flight Measurement characteristic - Ambient 1 (UUID = 0x0002): "));
-  success = ble.sendCommandWithIntReply( F("AT+GATTADDCHAR=UUID=0x0002,PROPERTIES=0x02,MIN_LEN=1,VALUE=20"), &beerCharId);
+  success = ble.sendCommandWithIntReply( F("AT+GATTADDCHAR=UUID=0x0002,PROPERTIES=0x10,MIN_LEN=1,VALUE=20"), &beerCharId);
     if (! success) {
     error(F("Could not add characteristic"));
   }
 
   Serial.println(F("Adding the Beer Flight Measurement characteristic - Flight 2 (UUID = 0x0003): "));
-  success = ble.sendCommandWithIntReply( F("AT+GATTADDCHAR=UUID=0x0003,PROPERTIES=0x02,MIN_LEN=1,VALUE=20"), &beerCharId);
+  success = ble.sendCommandWithIntReply( F("AT+GATTADDCHAR=UUID=0x0003,PROPERTIES=0x10,MIN_LEN=1,VALUE=20"), &beerCharId);
     if (! success) {
     error(F("Could not add characteristic"));
   }
 
   Serial.println(F("Adding the Beer Flight Measurement characteristic - Ambient 2  (UUID = 0x0004): "));
-  success = ble.sendCommandWithIntReply( F("AT+GATTADDCHAR=UUID=0x0004,PROPERTIES=0x02,MIN_LEN=1,VALUE=20"), &beerCharId);
+  success = ble.sendCommandWithIntReply( F("AT+GATTADDCHAR=UUID=0x0004,PROPERTIES=0x10,MIN_LEN=1,VALUE=20"), &beerCharId);
     if (! success) {
     error(F("Could not add characteristic"));
   }
 
   Serial.println(F("Adding the Beer Flight Measurement characteristic - Flight 3 (UUID = 0x0005): "));
-  success = ble.sendCommandWithIntReply( F("AT+GATTADDCHAR=UUID=0x0005,PROPERTIES=0x02,MIN_LEN=1,VALUE=20"), &beerCharId);
+  success = ble.sendCommandWithIntReply( F("AT+GATTADDCHAR=UUID=0x0005,PROPERTIES=0x10,MIN_LEN=1,VALUE=20"), &beerCharId);
     if (! success) {
     error(F("Could not add characteristic"));
   }

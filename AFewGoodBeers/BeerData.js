@@ -69,6 +69,10 @@ export default class BeerData extends Component {
                       console.log('characteristic data: ', data);
                    });
 
+                   characteristic.subscribe(function(error){
+                    console.log('subscribed ');
+                   });
+
                  })
               });
             });
