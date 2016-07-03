@@ -96,7 +96,7 @@ int lightPins[] = {
 };
 
 
-int pinCount = 1;
+int pinCount = 5;
 
 int sensorValue = 0;
 int outputValue = 0;
@@ -211,8 +211,28 @@ void loop()
 {
    // loop through the lightPins and get the data, map and write it
     for(int thisPin = 0; thisPin < pinCount; thisPin++){
+          int32_t uuidIndex; 
+
+          uuidIndex = thisPin + 1; 
+
+          Serial.print("which uuid index: ");
+          Serial.println(uuidIndex);
+          
           sensorValue = analogRead(lightPins[thisPin]);
           outputValue = mapSensorValue(sensorValue);
+
+          /* Command is sent when \n (\r) or println is called */
+          /* AT+GATTCHAR=CharacteristicID,value */
+          ble.print( F("AT+GATTCHAR=") );
+          ble.print( uuidIndex );
+          ble.print( F(",") );
+          ble.println(outputValue);
+        
+        //  /* Check if command executed OK */
+          if ( !ble.waitForOK() )
+          {
+            Serial.println(F("Failed to get response!"));
+          }
     }
 
 
@@ -220,21 +240,6 @@ void loop()
 //   Serial.print(F("Updating HRM value to "));
 //  Serial.print(outputValue);
 //  Serial.println(F(" Units"));
-
-  /* Command is sent when \n (\r) or println is called */
-  /* AT+GATTCHAR=CharacteristicID,value */
-  ble.print( F("AT+GATTCHAR=") );
-  ble.print( beerCharId );
-  ble.print( F(",") );
-  ble.println(outputValue);
-
-  ble.println( F("AT+GATTCHAR=1") );
-
-//  /* Check if command executed OK */
-  if ( !ble.waitForOK() )
-  {
-    Serial.println(F("Failed to get response!"));
-  }
 //
 //  /* Delay before next measurement update */
   delay(1000);
