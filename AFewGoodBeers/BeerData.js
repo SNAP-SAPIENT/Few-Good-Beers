@@ -46,13 +46,34 @@ export default class BeerData extends Component {
 
   _onPeripheralFound = (peripheral) => {
     console.log('found it?');
-    this._printPeripheral(peripheral);
     this._connectToBeers(peripheral);
   }
 
   _connectToBeers(peripheral) {
     console.log('connect, yo');
-    peripheral.connect(discover);
+    peripheral.connect(function(error) {
+        console.log('connected to peripheral: ' + peripheral.uuid);
+        peripheral.discoverServices(['103D'], function(error, services) {
+            services.forEach(function(service){
+              service.discoverCharacteristics([], function(err, characteristics){
+                characteristics.forEach(function(characteristic) {
+                   //
+                   // Loop through each characteristic and match them to the
+                   // UUIDs that we know about.
+                   //
+                   console.log('found characteristic:', characteristic.uuid);
+                   // console.log('characteristic info: ', characteristic);
+                   characteristic.read();
+                   characteristic.on('read', function(data, isNotification){
+                      console.log('characteristic data: ', data);
+                   });
+
+                 })
+              });
+            });
+
+        });
+    });
   }
 
   _printPeripheral(peripheral) {

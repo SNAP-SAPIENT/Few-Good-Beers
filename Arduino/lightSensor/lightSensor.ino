@@ -156,8 +156,8 @@ void setup(void)
 
   /* Add the Beer Flight Measurement characteristic */
   /* Chars ID for Measurement should be 1 */
-  Serial.println(F("Adding the Beer Flight Measurement characteristic (UUID = 0x2A67): "));
-  success = ble.sendCommandWithIntReply( F("AT+GATTADDCHAR=UUID=0x2A67, PROPERTIES=0x01, MIN_LEN=1, VALUE=100"), &beerCharId);
+  Serial.println(F("Adding the Beer Flight Measurement characteristic (UUID = 0x0002): "));
+  success = ble.sendCommandWithIntReply( F("AT+GATTADDCHAR=UUID=0x0002,PROPERTIES=0x02,MIN_LEN=1,VALUE=OY"), &beerCharId);
     if (! success) {
     error(F("Could not add characteristic"));
   }
@@ -171,7 +171,7 @@ void setup(void)
   ble.reset();
 
   Serial.println();
-    
+  
   
   Serial.println(F("******************************"));
 
@@ -185,15 +185,13 @@ void setup(void)
 void loop()
 {
    // loop through the lightPins and get the data, map and write it
-//    for(int thisPin = 0; thisPin < pinCount; thisPin++){
-//          sensorValue = analogRead(lightPins[thisPin]);
-//          outputValue = mapSensorValue(sensorValue);
-//          analogWrite(ledPins[thisPin], outputValue);
-//          sendCalculatedData(outputValue);
-//    }
+    for(int thisPin = 0; thisPin < pinCount; thisPin++){
+          sensorValue = analogRead(lightPins[thisPin]);
+          outputValue = mapSensorValue(sensorValue);
+          analogWrite(ledPins[thisPin], outputValue);
+    }
 
-ble.print( F("AT+GATTCHAR=1") );
-ble.println("moo");
+
 //    
 //   Serial.print(F("Updating HRM value to "));
 //  Serial.print(outputValue);
@@ -201,11 +199,13 @@ ble.println("moo");
 
   /* Command is sent when \n (\r) or println is called */
   /* AT+GATTCHAR=CharacteristicID,value */
-//  ble.print( F("AT+GATTCHAR=") );
-//  ble.print( beerServiceId );
-//  ble.print( F(",00-") );
-//  ble.println(outputValue, HEX);
-//
+  ble.print( F("AT+GATTCHAR=") );
+  ble.print( beerCharId );
+  ble.print( F(",00-") );
+  ble.println(outputValue);
+
+  ble.println( F("AT+GATTCHAR=1") );
+
 //  /* Check if command executed OK */
   if ( !ble.waitForOK() )
   {
@@ -225,7 +225,7 @@ int mapSensorValue(int sensorValue) {
   outputValue = map(sensorValue, 1, 700, 1, 20);
   reMappedValue = map(outputValue, 1, 20, 1, 255);
   
-  
+  Serial.println(reMappedValue); 
 //   Serial.print("sensor value = ");
 //   Serial.print(sensorValue);
 //   Serial.print("\t mapped value = ");
