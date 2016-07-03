@@ -157,11 +157,17 @@ void setup(void)
   /* Add the Beer Flight Measurement characteristic */
   /* Chars ID for Measurement should be 1 */
   Serial.println(F("Adding the Beer Flight Measurement characteristic (UUID = 0x0002): "));
-  success = ble.sendCommandWithIntReply( F("AT+GATTADDCHAR=UUID=0x0002,PROPERTIES=0x02,MIN_LEN=1,VALUE=OY"), &beerCharId);
+  success = ble.sendCommandWithIntReply( F("AT+GATTADDCHAR=UUID=0x0002,PROPERTIES=0x02,MIN_LEN=1,VALUE=20"), &beerCharId);
     if (! success) {
     error(F("Could not add characteristic"));
   }
 
+  Serial.println(F("Adding the Beer Flight Measurement characteristic (UUID = 0x0002): "));
+  success = ble.sendCommandWithIntReply( F("AT+GATTADDCHAR=UUID=0x0003,PROPERTIES=0x02,MIN_LEN=1,VALUE=20"), &beerCharId);
+    if (! success) {
+    error(F("Could not add characteristic"));
+  }
+  
 //  /* Add the Beer Service to the advertising data (needed for Nordic apps to detect the service) */
   Serial.print(F("Adding Beer Service UUID to the advertising payload: "));
   ble.sendCommandCheckOK( F("AT+GAPSETADVDATA=03-02-3D-10") );
@@ -201,7 +207,7 @@ void loop()
   /* AT+GATTCHAR=CharacteristicID,value */
   ble.print( F("AT+GATTCHAR=") );
   ble.print( beerCharId );
-  ble.print( F(",00-") );
+  ble.print( F(",") );
   ble.println(outputValue);
 
   ble.println( F("AT+GATTCHAR=1") );
