@@ -63,6 +63,7 @@ export default class BeerData extends Component {
                    //
                    console.log('found characteristic:', characteristic.uuid);
                    // console.log('characteristic info: ', characteristic);
+
                    characteristic.read();
                    characteristic.on('read', function(data, isNotification){
                       console.log('characteristic data: ', data);
