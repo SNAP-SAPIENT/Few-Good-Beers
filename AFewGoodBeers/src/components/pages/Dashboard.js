@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 
 import textStyle from '../../styles/textStyle';
+import colorStyle from '../../styles/colors';
 import Summary from '../Summary';
 
 import BeerData from '../../../BeerData';
@@ -10,8 +11,7 @@ import BeerData from '../../../BeerData';
 export default class Dashboard extends Component {
   render() {
     return (
-      <View style={styles.container}>
-        <BeerData />
+      <View style={[styles.container, colorStyle.orange]}>
         <View>
           <Text style={textStyle.header}>A Few Good Beers</Text>
         </View>
